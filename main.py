@@ -17,7 +17,10 @@ df = pd.DataFrame({'a':[1,2,3], 'b':[4,5,6]})
 st.dataframe(df)
 df.to_excel('test.xlsx', index=False)
 
-st.download_button('Download', 'test.xlsx', 'Click here to download the file')
+with open('test.xlsx', 'rb') as my_file:
+    st.download_button(label = 'Download', data = my_file, file_name = 'filename.xlsx')#, mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')     
+
+
 
 # # Button
 # if st.button('Analyze'):
