@@ -5,86 +5,51 @@
 import streamlit as st
 import pandas as pd
 
+import plotly.graph_objects as go
+
+from _core import (
+    do_analysis,
+    do_translation,
+    do_download_prep
+)
+
+# Add website title and favicon
+st.set_page_config(page_title='Word Freq Counter Pro', page_icon='📚')
 
 # Title
-st.title('Word Frequency Analysis by Future')
+st.title('Word Frequency Analysis Pro')
 
 # Input box
 user_input = st.text_area('Input your text here. We won\'t save your text:', value='', height=200)
 user_input = user_input.lower()
+st.session_state['user_input'] = user_input
 
-df = pd.DataFrame({'a':[1,2,3], 'b':[4,5,6]})
-st.dataframe(df)
-df.to_excel('test.xlsx', index=False)
-
-with open('test.xlsx', 'rb') as my_file:
-    st.download_button(label = 'Download', data = my_file, file_name = 'filename.xlsx')#, mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')     
-
-
-
-# # Button
-# if st.button('Analyze'):
-#     if not user_input:
-#         st.warning('Please input your text!')
-#         st.stop()
-#     words = user_input.split()
-
-#     # move the punctuation
-#     words = [word.strip('.,!;:()[]"') for word in words]
-
-#     word_freq = {}
-#     for word in words:
-#         if word in word_freq:
-#             word_freq[word] += 1
-#         else:
-#             word_freq[word] = 1
+# Buttons
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.button('Analyze', on_click=do_analysis)
+with c2:
+    st.button('Add translation', on_click=do_translation)
+with c3:
+    if 'exported' not in st.session_state or not st.session_state['exported']:
+        st.button('Export', on_click=do_download_prep)
+    else:
+        with open('test.xlsx', 'rb') as my_file:
+            st.download_button(on_click= do_download_prep, label = 'Download', data = my_file, file_name = 'filename.xlsx')#, mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')     
 
 
 
-    # # First, show the total number of words, total number of distinct words, and distinct ratio here
-    # # bold font
-    # st.text(f'Total number of words: {len(words)}, ')
-    # st.text(f'total number of distinct words: {len(word_freq)}, ')
-    # st.text(f'distinct ratio: {len(word_freq)/len(words)*100:.2f}%')
+### Main display ###
+if 'word_freq' in st.session_state:
+    # First, show the total number of words, total number of distinct words, and distinct ratio here
+    st.markdown(f'Total number of words: {st.session_state["num_words"]}, '
+                f'total number of distinct words: {len(st.session_state["word_freq"])}, '
+                f'distinct ratio: {len(st.session_state["word_freq"])/st.session_state["num_words"]*100:.2f}%')
 
-    # word_freq = pd.DataFrame.from_dict(word_freq, orient='index', columns=['Frequency'])
-    # word_freq.index.name = 'Word'
-    # word_freq = word_freq.sort_values(by='Frequency', ascending=False)
+    # Second, show the table of word frequency
+    st.dataframe(st.session_state['word_freq'], use_container_width=True, height=1000)
 
-    # # print(word_freq)
-
-    # # show word cloud
-    # wc = wordcloud.WordCloud(width=1000, height=600, background_color='white')
-    # wc.fit_words(word_freq['Frequency'])
-    # st.image(wc.to_array())
-
-    # # show table with st.DataFrame, set height for the total number of elements
-    # # st.dataframe(word_freq, use_container_width=True, height=1000)
-
-    # # add a new column, the link to https://www.thesaurus.com/browse/{}
-    # word_freq['Synonum'] = [create_link(f'https://www.thesaurus.com/browse/{word}') for word in word_freq.index.to_list()]
     
-    # # make the word column as the first column
-    # word_freq.insert(0, 'Word', word_freq.index)
 
-    # print(word_freq)
-    # fig = go.Figure(
-    #     data=[
-    #         go.Table(                
-    #             columnwidth = [1,1,0.5],
-    #             header=dict(
-    #                 values=[f"<b>{i}</b>" for i in word_freq.columns.to_list()],
-    #                 fill_color='orange'
-    #                 ),
-    #             cells=dict(
-    #                 values=word_freq.transpose(),
-    #                 font=dict(size=20),
-    #                 ),
-    #             ),
-    #         ]
-    #     )
-    # fig.update_layout(height=1000)
 
-    # st.text('The table below shows the frequency of each word and the link to its synonum:')
 
-    # st.plotly_chart(fig, use_container_width=True)
