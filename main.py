@@ -20,6 +20,19 @@ st.set_page_config(page_title='Word Freq Counter Pro', page_icon='📚')
 # Title
 st.title('Word Frequency Analysis Pro')
 
+st.markdown('''
+Quick Guide:
+1. Input your text in the box below.
+
+2. Select an action: "Analysis" or "Analysis & Translation" (This will show the Chinese meaning).
+
+3. Select a filter level: "No filter" or "Filter out trivial words" (This will remove words like "as", "the"...).     
+
+4. Press the "Analyze" button.
+            
+5. Press the "Export" button, then press the "Download" button (This will download an Excel file.)
+''')
+
 # Input box
 user_input = st.text_area('Input your text here. We won\'t save your text:', value='', height=200)
 user_input = user_input.lower()
@@ -32,7 +45,7 @@ c1, c2 = st.columns(2)
 with c1:
     st.radio('Select an action:', options=['Analysis', 'Analysis & Translation'], key='action')
 with c2:
-    st.radio('Select a filter level:', options=['No filter', 'Filter out 介词连词助词'], key='filterlevel')
+    st.radio('Select a filter level:', options=['No filter', 'Filter out trivial words'], key='filterlevel')
 
 
 # Buttons

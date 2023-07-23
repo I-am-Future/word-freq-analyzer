@@ -27,7 +27,7 @@ def do_analysis() -> None:
         _do_translation()
 
     filterlevel = getattr(st.session_state, 'filterlevel')
-    if filterlevel == 'Filter out 介词连词助词':
+    if filterlevel == 'Filter out trivial words':
         filter_result()
     
 
@@ -90,9 +90,9 @@ def do_download_prep() -> None:
         st.session_state['exported'] = True
 
 def filter_result() -> None:
-    # if 'word_freq' in st.session_state and st.session_state['filterlevel'] == 'Filter out 介词连词助词':
+    # if 'word_freq' in st.session_state and st.session_state['filterlevel'] == 'Filter out trivial words':
         # filter out Prepositional conjunctions and auxiliary words
-    if getattr(st.session_state, 'word_freq', None) is not None and getattr(st.session_state, 'filterlevel', None) == 'Filter out 介词连词助词':
+    if getattr(st.session_state, 'word_freq', None) is not None and getattr(st.session_state, 'filterlevel', None) == 'Filter out trivial words':
         st.session_state['word_freq'] = st.session_state['word_freq'].drop(REMOVED_WORD, axis=0, errors='ignore')
     
 
