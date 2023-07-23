@@ -9,60 +9,10 @@ import streamlit as st
 import pandas as pd
 from deep_translator import GoogleTranslator
 
-def do_analysis() -> None:
-    st.session_state['translated'] = False
-    st.session_state['exported'] = False
-
-    if not st.session_state['user_input']:
-        st.warning('Please input your text!')
-        st.stop()
-    words = st.session_state['user_input'].split()
-
-    # move the punctuation
-    words = [word.strip('.,!;:()[]"') for word in words]
-
-    word_freq = {}
-    for word in words:
-        if word in word_freq:
-            word_freq[word] += 1
-        else:
-            word_freq[word] = 1
-
-    word_freq = pd.DataFrame.from_dict(word_freq, orient='index', columns=['Frequency'])
-    word_freq.index.name = 'Word'
-    word_freq = word_freq.sort_values(by='Frequency', ascending=False)
-
-    st.session_state['translated'] = False
-    st.session_state['num_words'] = len(words)
-    st.session_state['word_freq'] = word_freq
-
-
-def do_translation() -> None:
-    if 'word_freq' not in st.session_state:
-        do_analysis()
-    
-    st.session_state['translated'] = True
-
-    st.session_state['exported'] = False
-
-    # if it already has "Translation" column, then remove that column.
-    if 'Translation' in st.session_state['word_freq'].columns:
-        st.session_state['word_freq'].drop(columns=['Translation'], inplace=True)
-
-    # batch apply to save the query time
-    all_words = st.session_state['word_freq'].index.tolist()
-
-    result = GoogleTranslator(source='auto', target='zh-CN').translate('\n'.join(all_words))
-    result = result.split('\n')
-    # put the result on the first column
-    st.session_state['word_freq'].insert(0, 'Translation', result)
-
-
-def do_download_prep() -> None:
-    st.session_state['word_freq'].to_excel('test.xlsx', index=True, header=True)
-    st.session_state['exported'] = True
-
-
+from _core import (
+    do_analysis,
+    do_download_prep,
+)
 
 # Add website title and favicon
 st.set_page_config(page_title='Word Freq Counter Pro', page_icon='📚')
@@ -75,18 +25,29 @@ user_input = st.text_area('Input your text here. We won\'t save your text:', val
 user_input = user_input.lower()
 st.session_state['user_input'] = user_input
 
-# Buttons
-c1, c2, c3 = st.columns(3)
+st.markdown('Set the following configs first, then press the "Analyze" button! ')
+
+# Select box
+c1, c2 = st.columns(2)
 with c1:
-    st.button('Analyze', on_click=do_analysis)
+    st.radio('Select an action:', options=['Analysis', 'Analysis & Translation'], key='action')
 with c2:
-    st.button('Add translation', on_click=do_translation)
-with c3:
-    if 'exported' not in st.session_state or not st.session_state['exported']:
+    st.radio('Select a filter level:', options=['No filter', 'Filter out 介词连词助词'], key='filterlevel')
+
+
+# Buttons
+c1, c2 = st.columns(2)
+with c1:
+    st.markdown('Translation may take a while.')
+    st.button('Analyze', on_click=do_analysis)
+
+with c2:
+    st.markdown('Export first, then download.')
+    if ('exported' not in st.session_state) or (not st.session_state['exported']):
         st.button('Export', on_click=do_download_prep)
     else:
         with open('test.xlsx', 'rb') as my_file:
-            st.download_button(on_click= do_download_prep, label = 'Download', data = my_file, file_name = 'filename.xlsx')#, mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')     
+            st.download_button(label = 'Ready to Download!', data = my_file, file_name = 'WordFreqCountPro.xlsx')#, mime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')     
 
 
 
