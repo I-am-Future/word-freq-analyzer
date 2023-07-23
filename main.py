@@ -31,6 +31,8 @@ Quick Guide:
 4. Press the "Analyze" button.
             
 5. Press the "Export" button, then press the "Download" button (This will download an Excel file.)
+            
+6. If you want to analyze another text, or change configs, please re-press the "Analyze" button.
 ''')
 
 # Input box
@@ -51,7 +53,7 @@ with c2:
 # Buttons
 c1, c2 = st.columns(2)
 with c1:
-    st.markdown('Translation may take a while.')
+    st.markdown('Translation may take several seconds.')
     st.button('Analyze', on_click=do_analysis)
 
 with c2:
